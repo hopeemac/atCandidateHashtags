@@ -43,24 +43,47 @@
     
 </head>
 <body style="background-color:black;">
-    <h1 align="center">Directed Tweets Hashtag Analysis</h1>
+    <h1 align="center">Directed Tweets (@) Hashtag Analysis</h1>
     <h2 align="center">Hover over Line for Hashtag</h2>
-    <svg width="1250" height="600"></svg>
+    
+    <div align="center">
+        <button id="HillaryClinton" onclick="changeCandidate(counts,this.id)" style="background-color: blue" class="button">Hillary Clinton (D)</button>
+        <button id="realDonaldTrump" onclick="changeCandidate(counts,this.id)" style="background-color: red" class="button">Donald Trump (R)</button>
+        <button id="BernieSanders" onclick="changeCandidate(counts,this.id)" style="background-color: blue" class="button">BernieSanders (D)</button>
+    </div><br />
+    
+     <div align ="center" style="color:red">
+			From : <input type="date" name="field1" id="field1" style="color:red" value="2016-05-05"/>
+			To :   <input type="date" name="field2" id="field2" style="color:red" value="2016-05-20"/>
+			<input type="button" onclick="makeChart(allData, allCities, true)" value="Update Chart" />
+    </div>
+    
+    <svg width="1350" height="700"></svg>
 
     <div id="floater">
         <span id="hashtag" style="font-weight: bold"></span><br />
     </div>
     
     <script>
-
+    
+    console.log(document.getElementById('field1').value)
+    
+    var date1;
+    var date2;    
+    var ids;
+    var myData;
+    var allCities;
+    var allData;
+        
     var svg = d3.select("svg"),
-        margin = {top: 20, right: 80, bottom: 30, left: 50},
+        margin = {top: 20, right: 10, bottom: 30, left: 50},
         width = svg.attr("width") - margin.left - margin.right,
         height = svg.attr("height") - margin.top - margin.bottom,
         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var parseTime = d3.timeParse("%Y-%m-%d");
-
+    //var	parseDate = d3.time.format("%Y-%m-%d").parse;
+        
     var x = d3.scaleTime().range([0, width]),
         y = d3.scaleLinear().range([height, 0]),
         z = d3.scaleOrdinal(d3.schemeCategory10);
@@ -70,58 +93,100 @@
         .x(function(d) { return x(d.date); })
         .y(function(d) { return y(d.temperature); });
 
-    d3.csv("hash.csv", type, function(error, data) {
-      if (error) throw error;
-     console.log(data);
-      var cities = data.columns.slice(1).map(function(id) {
-        return {
-          id: id,
-          values: data.map(function(d) {
-            return {date: d.date, temperature: d[id]};
-          })
-        };
-      });
-
-      x.domain(d3.extent(data, function(d) { return d.date; }));
-
-      y.domain([
-        d3.min(cities, function(c) { return d3.min(c.values, function(d) { return d.temperature; }); }),
-        d3.max(cities, function(c) { return d3.max(c.values, function(d) { return d.temperature; }); })
-      ]);
-
-      z.domain(cities.map(function(c) { return c.id; }));
-
-      g.append("g")
-          .attr("class", "axis axis--x")
-          .attr("transform", "translate(0," + height + ")")
-          .call(d3.axisBottom(x));
+    d3.csv("hash_dailyTop10.csv", type, function(error, data) {
+        if (error) throw error;
+        ids = data.columns.slice(1);
+        console.log(ids)
+        allCities = ids.map(function(id) {
+            return {
+                id: id,
+                values: data.map(function(d) {
+                    return {date: d.date, temperature: d[id]};
+                })
+            };
+        });
+        //allCities = cities;
+        //myData = data;
+        allData = data;
+        makeChart(allData, allCities, false);
+    });
         
+    function makeChart(data, cities, filterByDates) {
+    
+        
+        d3.selectAll(".city").remove(); 
+        //d3.selectAll(".labels").remove();
+        d3.selectAll(".axis.axis--x").remove();
+        d3.selectAll(".axis.axis--y").remove();
+        
+        if(filterByDates) {
+            date1 = parseTime(document.getElementById('field1').value);
+            date2 = parseTime(document.getElementById('field2').value);
+            //var date1 = document.getElementById('field1').value;
+            //var date2 = document.getElementById('field2').value;
+            data = data.filter(function(d) {if(d.date >= date1 && d.date <= date2) return d;});
+            console.log(data)
+            
+            cities = ids.map(function(id) {
+                return {
+                  id: id,
+                  values: data.map(function(d) { if(d.date >= date1 && d.date <= date2)
+                    return {date: d.date, temperature: d[id]};
+                  })
+                };
+              });
 
-      g.append("g")
-          .attr("class", "axis axis--y")
-          .call(d3.axisLeft(y))
-        .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", "0.71em")
-          .attr("fill", "white")
-          .text("Number of Tweets");
+            //console.log(cities[0]['values'].length);
+            
+            
+        }
+        //console.log(data)
+        
+        //console.log(cities[0]['values'].length);
+        
+        x.domain(d3.extent(data, function(d) { return d.date; }));
 
-      var city = g.selectAll(".city")
-        .data(cities)
-        .enter().append("g")
-          .attr("class", "city");
+        y.domain([
+            d3.min(cities, function(c) { return d3.min(c.values, function(d) { return d.temperature; }); }),
+            d3.max(cities, function(c) { return d3.max(c.values, function(d) { return d.temperature; }); })
+          ]);
 
-      city.append("path")
-          .attr("class", "line")
-          .attr("d", function(d) { return line(d.values); })
-          .style("stroke", function(d) { return z(d.id); })
-        .attr("id",function(d) { return d.id; })
-        .on("mouseover",showHashtag)
-        .on("mouseout",hideHashtag)
-      
-      ;
+        //y.domain([0,60000]);
+          z.domain(cities.map(function(c) { return c.id; }));
 
+          g.append("g")
+              .attr("class", "axis axis--x")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x));
+
+
+          g.append("g")
+              .attr("class", "axis axis--y")
+              .call(d3.axisLeft(y))
+            .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 6)
+              .attr("dy", "0.71em")
+              .attr("fill", "white")
+              .text("Number of Tweets");
+
+          var city = g.selectAll(".city")
+            .data(cities)
+            .enter().append("g")
+              .attr("class", "city");
+
+          city.append("path")
+              .attr("class", "line")
+              .attr("d", function(data) { return line(data.values); })
+              .style("stroke", function(data) { return z(data.id); })
+            .attr("id",function(data) { return data.id; })
+            .on("mouseover",showHashtag)
+            .on("mouseout",hideHashtag)
+            //.on("click",clearLine)
+
+          ;
+        
+        }
       //city.append("text")
       //    .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 2]}; })
       //    .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
@@ -130,7 +195,7 @@
       //    .style("font", "10px sans-serif")
       //  .attr("fill", "white")
       //    .text(function(d) { return d.id; });
-    });
+    
 
     function type(d, _, columns) {
       d.date = parseTime(d.date);
@@ -164,6 +229,19 @@
             .style("visibility","hidden");
             ;
     }
+        
+    function clearLine(){
+        console.log('delete this line');
+        d3.select(this)
+            .attr("opacity", 0);
+        ;
+    }
+    
+    function getDates() {
+            return [document.getElementById('field1').value, document.getElementById('field2').value];
+        }
+        
+    
 
     </script>
 </body>
