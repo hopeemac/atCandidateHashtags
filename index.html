@@ -47,11 +47,12 @@
     
 </head>
 <body style="background-color:black;">
+	
     <h1 align="center">2016 Presidential Candidates Directed Tweets (@) Hashtag Analysis </h1>
     
     <div align="center">
-        <button id="HillaryClinton" onclick="changeCandidate(counts,this.id)" style="background-color: blue" class="button">Hillary Clinton (D)</button>
-        <button id="realDonaldTrump" onclick="changeCandidate(counts,this.id)" style="background-color: red" class="button">Donald Trump (R)</button>
+        <button id="HillaryClinton" onclick="changeCandidate(this.id)" style="background-color: blue" class="button">Hillary Clinton (D)</button>
+        <button id="realDonaldTrump" onclick="changeCandidate(this.id)" style="background-color: red" class="button">Donald Trump (R)</button>
     </div><br />
     
      <div align ="center" style="color:red">
@@ -81,27 +82,32 @@
         
     var parseTime = d3.timeParse("%Y-%m-%d");
     //var	parseDate = d3.time.format("%Y-%m-%d").parse;
-
-    d3.csv("HillaryClinton_hash_dailyTop10.csv", type, function(error, data) {
-        if (error) throw error;
-        ids = data.columns.slice(1);
-        console.log(ids)
-        allCities = ids.map(function(id) {
-            return {
-                id: id,
-                values: data.map(function(d) {
-                    return {date: d.date, temperature: d[id]};
-                })
-            };
-        });
-        //allCities = cities;
-        //myData = data;
-        allData = data;
-        makeChart(allData, allCities, filterOn);
-    });
+	
+	function getData(file){
+		d3.csv(file, type, function(error, data) {
+			if (error) throw error;
+			ids = data.columns.slice(1);
+			console.log(ids)
+			allCities = ids.map(function(id) {
+				return {
+					id: id,
+					values: data.map(function(d) {
+						return {date: d.date, temperature: d[id]};
+					})
+				};
+			});
+			//allCities = cities;
+			//myData = data;
+			allData = data;
+			makeChart(allData, allCities, filterOn);
+		});
+    }
+	getData("HillaryClinton_hash_dailyTop10.csv");
         
     function makeChart(data, cities, filterByDates) {
+		
         
+		
         var windowWidth = window.innerWidth - 100;
         var windowHieght = window.innerHeight - 200;
         
@@ -265,7 +271,14 @@
         filterOn = false;
         makeChart(allData, allCities, filterOn) 
     };
-
+		
+	function changeCandidate(candidate){
+		fileName = candidate+'_hash_dailyTop10.csv'
+		getData(fileName);
+	}
+		
+	//makeChart(allData, allCities, filterOn);
+		
     </script>
 	
 	<p>Note: This data was acquired by the Twitter API collecting all @Candidate tweets available for that day. This analysis is subject to the availability and sampling methods of information made available through the Twitter API. For questions, please contact Hope McIntyre hm7zg@virginia.edu or ... </p>
