@@ -31,18 +31,68 @@
 		background-color: none;
 		padding: 10px;
 	}
+	div.container {
+		width: 100%;
+	}
 
+	div.debateButtons{
+		float:left;
+		padding: 10px;
+	}
+	div.candidateButtons{
+		padding: 10px;
+	}
+	div.dateButtons{
+		clear:both;
+		padding: 10px;
+	}
+	#datevalue{
+		width:500px;
+	}
+	#play{
+		font-size: 16px;
+		border: 2px solid;
+		border-radius: 10px;
+	}
+
+	.candidateButton{
+		font-size: 14px;
+		border-radius: 5px;
+	}
 	</style>
+	
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-73887344-1', 'auto');
+	  ga('send', 'pageview');
+
+	</script>
     
 </head>
 
 <body>
-<h1 align="center">2016 Presidential Candidates Directed Tweets (@) Hashtag Analysis </h1>
+<h1 align="center">2016 Presidential Election Debates - Directed Tweets (@) Hashtag Analysis </h1>
 
-<div align="center">
-	<button id="HillaryClinton" onclick="changeCandidate(this.id)" style="background-color: blue" class="button">Hillary Clinton (D)</button>
-	<button id="realDonaldTrump" onclick="changeCandidate(this.id)" style="background-color: red" class="button">Donald Trump (R)</button>
-</div><br/>
+<div class="container">
+
+	<div class='debateButtons'>
+		<form onClick="changeDebate()">
+		  <input type="radio" name="debate" value="20161004" checked="checked"> Oct. 4 VP Debate<br>
+		  <input type="radio" name="debate" value="20160926"> Sept. 26 Pres Debate<br>
+		</form>
+	</div>
+	
+	<div class='candidateButtons'>
+		<span id="candidatedisplay"></span>
+		<button id="democrat" onclick="changeCandidate(this.id)" style="background-color: blue" class="candidateButton">Hillary Clinton (D)</button>
+		<button id="republican" onclick="changeCandidate(this.id)" style="background-color: red" class="candidateButton">Donald Trump (R)</button>
+	</div>
+	
+</div>
 	
 <svg width="960" height="500"></svg>
 
@@ -52,34 +102,36 @@
 <script>
 	
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
+var candidateParty = 'democrat';
 var candidateMaster = 'HillaryClinton';
 var allData;
 var allCities;
-	
-function makeChart(fileName){
-	
-	// Change SVG Size to fit browser window
-	d3.select("svg")
-		.attr("width",window.innerWidth)
-		.attr("height",window.innerHeight - 150);
-	
-	var svg = d3.select("svg"),
-		margin = {top: 20, right: 30, bottom: 30, left: 50},
-		width = svg.attr("width") - margin.left - margin.right,
-		height = svg.attr("height") - margin.top - margin.bottom,
-		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var democrat;
+var republican;
 
+function getData(){
 	
-
-	var x = d3.scaleTime().range([0, width]),
-		y = d3.scaleLinear().range([height, 0]),
-		z = d3.scaleOrdinal(d3.schemeCategory10);
-
-	var line = d3.line()
-		.curve(d3.curveLinear)
-		.x(function(d) { return x(d.date); })
-		.y(function(d) { return y(d.temperature); });
-
+	if(getRadioValue('debate') == 20161004){
+		d3.select('#democrat').text('timkaine')
+		d3.select('#republican').text('mike_pence')
+		if (candidateParty == 'democrat'){
+		candidateMaster = 'timkaine';}
+		else {candidateMaster = 'mike_pence';}
+	}
+	else{
+		d3.select('#democrat').text('HillaryClinton')
+		d3.select('#republican').text('realDonaldTrump')
+		if (candidateParty == 'democrat'){
+		candidateMaster = 'HillaryClinton';}
+		else {candidateMaster = 'realDonaldTrump';}
+	}
+	
+	// Get Data for the Selected Debate
+	console.log(getRadioValue('debate'));
+	console.log(candidateMaster);
+	fileName = candidateMaster+"_hash_minuteTop10_" +getRadioValue('debate')+".csv"
+	//fileName = candidateMaster+"_hash_minuteTop10.csv"
+	
 	d3.csv(fileName, type, function(error, data) {
 	  if (error) throw error;
 		allData = data;
@@ -92,6 +144,38 @@ function makeChart(fileName){
 		};
 	  });
 	allCities = cities;
+	makeChart();
+	});
+}
+getData();
+	
+function makeChart(){
+	data = allData;
+	cities = allCities;
+	
+	d3.select("#candidatedisplay").text("Selected Candidate: '"+candidateMaster+"' ");
+	
+	// Change SVG Size to fit browser window
+	d3.select("svg")
+		.attr("width",window.innerWidth)
+		.attr("height",window.innerHeight - 150);
+	
+	var svg = d3.select("svg"),
+		margin = {top: 20, right: 30, bottom: 30, left: 50},
+		width = svg.attr("width") - margin.left - margin.right,
+		height = svg.attr("height") - margin.top - margin.bottom,
+		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	var x = d3.scaleTime().range([0, width]),
+		y = d3.scaleLinear().range([height, 0]),
+		z = d3.scaleOrdinal(d3.schemeCategory10);
+
+	var line = d3.line()
+		.curve(d3.curveLinear)
+		.x(function(d) { return x(d.date); })
+		.y(function(d) { return y(d.temperature); });
+
+	
 
 	  x.domain(d3.extent(data, function(d) { return d.date; }));
 
@@ -130,7 +214,6 @@ function makeChart(fileName){
 	  		.on("mouseover",showHashtag)
             .on("mouseout",hideHashtag);
 
-	});
 	}
 
 function type(d, _, columns) {
@@ -159,13 +242,34 @@ function hideHashtag(){
 }
 	
 function changeCandidate(candidate){
-		candidateMaster = candidate
-		var fileName = candidateMaster+'_hash_minuteTop10.csv'
+		candidateParty = candidate;
+		//var fileName = candidateMaster+'_hash_minuteTop10.csv'
 		d3.selectAll(".city").remove(); 
         //d3.selectAll(".labels").remove();
         d3.selectAll(".axis.axis--x").remove();
         d3.selectAll(".axis.axis--y").remove();
-		makeChart(fileName);
+		getData();
+}
+	
+function getRadioValue(theRadioGroup){
+	var elements = document.getElementsByName(theRadioGroup);
+	for (var i = 0, l = elements.length; i < l; i++)
+	{
+		if (elements[i].checked)
+		{
+			return elements[i].value;
+		}
+	}
+}
+function changeDebate(){
+	d3.selectAll(".city").remove(); 
+	//d3.selectAll(".labels").remove();
+	d3.selectAll(".axis.axis--x").remove();
+	d3.selectAll(".axis.axis--y").remove();
+	getData();
+	if (getRadioValue('debate') == 20161004){
+		console.log('switch candidates')
+	} 
 }
 	
 // Change size of the plot when the browser window is re-sized
@@ -176,6 +280,6 @@ window.onresize = function(event) {
 makeChart("HillaryClinton_hash_minuteTop10.csv");
 </script>
 	
-<p>Note: These graphs were produced by the University of Virginia's Twitter Visualization Project. Data were acquired via the Twitter API, collecting all @candidate tweets available for that day. This analysis reflects the availability and sampling methods of information made available through the Twitter API. For questions, please contact Hope McIntyre (hm7zg@virginia.edu), Paul Freedman (pf7h@virginia.edu), or David Leblang (dal7w@virginia.edu).</p>
+<p>Note: These graphs were produced by the University of Virginia's Twitter Visualization Project. Data were acquired via the Twitter API, collecting all @candidate tweets available for that day. This analysis reflects the availability and sampling methods of information made available through the Twitter API. For questions, please contact Hope McIntyre (hm7zg@virginia.edu), Paul Freedman (freedman@virginia.edu), or David Leblang (dal7w@virginia.edu).</p>
 </body>
 </html>
