@@ -1,0 +1,80 @@
+.axis--x path {
+	  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2.5px;
+}
+
+#floater {
+	text-align: left;
+	position: absolute;
+	width: 150px;
+	top:0px;
+	left:0px;
+	visibility: hidden;
+	font-size: 22px;
+	color: black;
+	background-color: none;
+	padding: 10px;
+}
+div.container {
+	width: 100%;
+}
+
+div.debateButtons{
+	float:left;
+	padding: 10px;
+}
+div.candidateButtons{
+	padding: 10px;
+}
+div.dateButtons{
+	clear:both;
+	padding: 10px;
+}
+#datevalue{
+	width:500px;
+}
+#play{
+	font-size: 16px;
+	border: 2px solid;
+	border-radius: 10px;
+}
+
+.candidateButton{
+	font-size: 14px;
+	border-radius: 5px;
+}
+
+/* Style for the Tracking Line and Top X Box */
+
+#floatingTop10 {
+	text-align: left;
+	position: absolute;
+	width: 200px;
+	top:0px;
+	left:0px;
+	visibility: visible;
+	font-size: 14px;
+	color: black;
+	background-color: none;
+	padding: 10px;
+}
+
+#mouse-tracker {
+  stroke: #E6E7E8;
+  stroke-width: 1px;
+}
+
+.hover-line { 
+  stroke: #E6E7E8;
+  fill: none;
+  stroke-width: 3px;
+  left: 10px;
+  shape-rendering: crispEdges;
+	pointer-events: none;
+
+}
