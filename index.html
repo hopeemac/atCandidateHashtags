@@ -84,11 +84,11 @@ function getData(){
 	console.log(candidateMaster);
 	
 	
-	fileName = candidateMaster+"_hash_minuteTop10_" +getRadioValue('debate')+".csv"
+	fileName = './data/'+candidateMaster+"_hash_minuteTop10_" +getRadioValue('debate')+".csv"
 	//fileName = candidateMaster+"_hash_minuteTop10.csv"
 	
 	
-	d3.json(candidateMaster+"_topList.json", function(data) {
+	d3.json('./data/'+candidateMaster+"_topList_"+getRadioValue('debate')+".json", function(data) {
 		topList = data;
 		// Get the main data set
 		d3.csv(fileName, type, function(error, data) {
@@ -117,7 +117,7 @@ function makeChart(){
 
 	// Change SVG Size to fit browser window
 	var windowWidth = window.innerWidth;
-	var windowHeight = window.innerHeight - 150;
+	var windowHeight = window.innerHeight - 180;
 	// Change SVG Size to fit browser window
 	//d3.select("svg")
 	//	.attr("width",window.innerWidth)
@@ -141,7 +141,7 @@ function makeChart(){
 	.attr("x", 0) 
 	.attr("y", 0)
 	.attr("id", "mouse-tracker")
-	.style("fill", "red")
+	.style("fill", "white")
 	.style("stroke","white"); 
 	;
 
@@ -326,7 +326,7 @@ function mousemove2() {
 	d3.select('#floatingTop10')
 		.html(topList[formatKey(d.date)])
 		.style("left", (mouse_x+60)+ "px") 
-        .style("top", 120+ "px")
+        .style("top", 200+ "px")
 		.style("pointer-events", "none");
       //focus.select("text").text(function(columnName){
          //because you didn't explictly set any data on the <text>
