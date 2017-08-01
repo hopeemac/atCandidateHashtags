@@ -4,4 +4,4 @@ d3 Visualization of the tweets with an '@' mentions of Hillary Clinton or Donald
 
 https://hopeemac.github.io/atCandidateHashtags/
 
-<code/> on the gh-pages branch
+Code can be found on the gh-pages branch
